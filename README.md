@@ -6,7 +6,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 
 3.  Setup the models for storing the data.  This is based on the sample script all ready mentioned.  I used the scheme as described in the example and just added a created field.  Go into your project and  look in the bp_content folder(where all you content should go) and find the themes directory. The project would prefer you to create a new theme for your project under this folder and use the default as an example.  I prefer to just use the default!  Under bp_content/themese/default/handlers you will find the model.py file which will contain the models for this project.
 
-	```
+	```python
 	from endpoints_proto_datastore.ndb import EndpointsModel
 	from google.appengine.ext import ndb
 
@@ -43,7 +43,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 
 5.  Create a new Service services.py in the root of your project folder.  
 
-	```
+	```python
 
 	
 		@AlohaModel.method(request_fields= ('id','pageId','contentId','content','created'), path='aloha', http_method='POST', name='aloha.insert')
@@ -82,25 +82,25 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 
   	a.  Import everything we need from the endpoints libraries  
 		
-		```
+		```python
     	import endpoints
     	from protorpc import remote
 		```
   	b.  Import the model we created earlier
 		
-		```
+		```python
     	from bp_content.themes.default.handlers.models import *
 		```
   	c.  Create a Api named 'contentapi' with a version of v1 and a description of 'Aloha API'.
 		
-		```
+		```python
     	@endpoints.api(name='contentapi', version='v1', description='Aloha API')
 		class AlohaModelApi(remote.Service):
 		```
 
   	d.  Create a method that can take 'id', 'pageId', 'contentId', 'content', 'created' as a request parameter.  The path of the request will be aloha and can only be a POST.   It has a name of aloha.insert.  Notice that since this doesn't use the key id normally used to identify the content but instead uses contentId and pageId when need to do a special test for the old object already existing in the database.  If it already exists we update it, otherwise we create a new one. 
     
-  		```
+  		```python
   		@AlohaModel.method(request_fields = ('id', 'pageId', 'contentId', 'content', 'created'), path = 'aloha', http_method = 'POST', name='aloha.insert')
     	def Insert(self, my_model):
         	old_model = AlohaModel.query(AlohaModel.pageId == my_model.pageId, AlohaModel.contentId == my_model.contentId).get()
@@ -114,7 +114,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 		```
   	e.  Here we have created a delete function that takes a parameter id.  Eventually we should change this to contentId and pageId.  Also note that the http_method must be a DELETE	
   	
-		```
+		```python
 		@AlohaModel.method(request_fields=('id',),path='aloha/{id}', http_method='DELETE', name='aloha.delete')
     def Delete(self,my_model):
         ndb.delete_multi([my_model.key])
@@ -122,7 +122,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 		```
   	f.  Here we have created a get function that takes a parameter id.  Eventually we should change this to contentId and pageId.  Also note that the http_method must be a GET
 
-		```
+		```python
 		@AlohaModel.method(request_fields=('id',), path='aloha/{id}', http_method='GET', name='aloha.get')
     def Get(self, my_model):
         if not my_model.from_datastore:
@@ -131,7 +131,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 		```
   	g.  Here we have created a list function that is used to get all entries.  We could limit these results by setting the limit and the order. 
   		
-  		```
+  		```python
   		@AlohaModel.query_method(query_fields=('limit', 'order'),path='aloha', name='aloha.list')
     	def List(self, query):
         	return query
@@ -143,7 +143,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 	  
 	
 	
-		```
+		```python
 		POST http://localhost:8080/_ah/api/contentapi/v1/aloha
 		Content-Type:  application/json
 		X-JavaScript-User-Agent:  Google APIs Explorer
@@ -159,7 +159,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
     b.  Go down and click the contentapi.aloha.list
     
     
-    	```
+    	```python
     	GET http://localhost:8080/_ah/api/contentapi/v1/aloha
 		X-JavaScript-User-Agent:  Google APIs Explorer
 
@@ -180,7 +180,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 7.  We are going to now setup the javascript and html pages.
 	a.  page.html 
 	
-		```
+		```html
 		<!doctype html>
 		<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
 		<head>
@@ -256,7 +256,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 	b.
 	
 	
-		```
+		```html
 	
 		Aloha.ready(function() {
     	Aloha.require( ['aloha', 'aloha/jquery'], function( Aloha, jQuery) {
@@ -302,7 +302,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 8.   Finish hooking up the page file.  
 	a.  In the bp_content/themes/default/handlers/handlers.py file add
 		
-		```
+		```python
 		class PageHandler(BaseHandler):
     		def get(self,*args,**kwargs):
       			pageId = self.request.get('pageId','/page/')
@@ -318,7 +318,7 @@ Read the readme ad follow the instruction on how to setup your machine and get i
 
 	b.  in the bp_content/themes/default/routes/__init__.py file add the following route
 	 	
-	 	```
+	 	```python
     	RedirectRoute('/page', handlers.PageHandler, name='page', strict_slash=True)
 		```
   
